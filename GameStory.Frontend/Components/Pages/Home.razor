@@ -1,0 +1,80 @@
+﻿@page "/"
+
+@inject GameClient GameClient;
+@inject GenreClient GenreClient;
+@attribute [StreamRendering]
+
+<PageTitle>Game Catalog</PageTitle>
+
+
+@if (games is null)
+{
+  <p><em>Loading...</em></p>
+}
+else
+{
+  <div class="mt-2">
+    <a class="btn btn-primary" href="/editGame">New Game</a>
+  </div>
+
+  <table class="table table-striped table-bordered table-hover mt-3">
+    <thead class="table-dark">
+      <th>Id</th>
+      <th>Name</th>
+      <th>Genre</th>
+      <th class="text-end">Price</th>
+      <th>Released Date</th>
+      <th> </th>
+    </thead>
+    <tbody>
+      @foreach (GameSummary game in games)
+      {
+        <tr>
+          <td>@game.Id</td>
+          <td>@game.Name</td>
+          <td>@game.Genre</td>
+          <td class="text-end">@game.Price.ToString("C2")</td>
+          <td>@game.ReleaseDate</td>
+          <td>
+            <div>
+              <a class="btn btn-primary me-2" role="button" href="@GetEditUrl(game.Id)">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <button class="btn btn-danger me-2"
+               type="button"
+               data-bs-toggle="modal"
+               data-bs-target="@GetModalId(game)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            <DeleteModal Game="@game" />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@code {
+  private GameSummary[]? games;
+
+  protected override async Task OnInitializedAsync()
+  {
+    games = await GameClient.GetGamesAsync();
+  }
+
+  public static string GetEditUrl(int Id)
+  {
+    return $"/editgame/{Id}";
+  }
+
+  public static string DeleteGame(int Id)
+  {
+    return $"/editgame/{Id}";
+  }
+
+  private string GetModalId(GameSummary gameSummary)
+  {
+    return $"#{DeleteModal.GetModalId(gameSummary)}";
+  }
+}
